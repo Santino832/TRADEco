@@ -21,6 +21,7 @@ class User:
             "email": data.get("email"),
             "password": self._hash_password(data.get("password")),
             "nombre": data.get("nombre"),
+            "whatsapp": data.get("whatsapp", ""),  # Campo WhatsApp
             "telefono": data.get("telefono", ""),
             "direccion": data.get("direccion", ""),
             "role": data.get("role", "usuario"),  # usuario o admin
@@ -54,7 +55,7 @@ class User:
         }
         
         # Campos que se pueden actualizar
-        allowed_fields = ["nombre", "telefono", "direccion"]
+        allowed_fields = ["nombre", "whatsapp", "telefono", "direccion"]
         for field in allowed_fields:
             if field in data:
                 update_data[field] = data[field]
@@ -89,6 +90,7 @@ class User:
             "username": user.get("username"),
             "email": user.get("email"),
             "nombre": user.get("nombre"),
+            "whatsapp": user.get("whatsapp", ""),
             "telefono": user.get("telefono", ""),
             "direccion": user.get("direccion", ""),
             "role": user.get("role", "usuario"),

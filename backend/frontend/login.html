@@ -82,29 +82,37 @@
                 <form id="registerForm">
                   <div class="row">
                     <div class="col-md-6 mb-3">
-                      <label class="form-label">Nombre de usuario</label>
+                      <label class="form-label">Nombre de usuario *</label>
                       <input type="text" class="form-control" id="regUsername" placeholder="usuario123" required>
                       <small class="text-muted">Entre 3 y 20 caracteres</small>
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label class="form-label">Nombre completo</label>
+                      <label class="form-label">Nombre completo *</label>
                       <input type="text" class="form-control" id="regNombre" placeholder="Juan Pérez" required>
                     </div>
                   </div>
                   
                   <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label">Email *</label>
                     <input type="email" class="form-control" id="regEmail" placeholder="tu@email.com" required>
                   </div>
                   
                   <div class="mb-3">
-                    <label class="form-label">Contraseña</label>
+                    <label class="form-label">Contraseña *</label>
                     <input type="password" class="form-control" id="regPassword" placeholder="••••••••" required>
                     <small class="text-muted">Mínimo 8 caracteres, una mayúscula, una minúscula y un número</small>
                   </div>
                   
                   <div class="mb-3">
-                    <label class="form-label">Teléfono (opcional)</label>
+                    <label class="form-label">
+                      <i class="bi bi-whatsapp text-success"></i> WhatsApp *
+                    </label>
+                    <input type="tel" class="form-control" id="regWhatsapp" placeholder="+54 9 11 1234-5678" required>
+                    <small class="text-muted">Para que los compradores puedan contactarte. Ej: +54 9 11 12345678</small>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">Teléfono alternativo (opcional)</label>
                     <input type="tel" class="form-control" id="regTelefono" placeholder="+54 11 1234-5678">
                   </div>
                   
@@ -180,6 +188,7 @@
         nombre: document.getElementById('regNombre').value,
         email: document.getElementById('regEmail').value,
         password: document.getElementById('regPassword').value,
+        whatsapp: document.getElementById('regWhatsapp').value,
         telefono: document.getElementById('regTelefono').value,
         direccion: document.getElementById('regDireccion').value
       };

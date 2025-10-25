@@ -45,6 +45,13 @@ def init_routes(db, user_model):
                     'message': 'Número de teléfono inválido'
                 }), 400
             
+            # Validar WhatsApp si se proporciona
+            if data.get('whatsapp') and not validate_phone(data['whatsapp']):
+                return jsonify({
+                    'success': False,
+                    'message': 'Número de WhatsApp inválido'
+                }), 400
+            
             # Actualizar usuario
             success = user_model.update(current_user_id, data)
             
@@ -71,7 +78,7 @@ def init_routes(db, user_model):
     
     @users_bp.route('/<user_id>', methods=['GET'])
     def get_user(user_id):
-        """Obtener información pública de un usuario"""
+        """Obtener información pública de un usuario (incluye WhatsApp para contacto)"""
         try:
             user = user_model.find_by_id(user_id)
             
@@ -81,11 +88,12 @@ def init_routes(db, user_model):
                     'message': 'Usuario no encontrado'
                 }), 404
             
-            # Devolver solo información pública
+            # Devolver información pública incluyendo WhatsApp para contacto
             public_info = {
                 'id': str(user['_id']),
                 'username': user.get('username'),
                 'nombre': user.get('nombre'),
+                'whatsapp': user.get('whatsapp', ''),  # Incluir WhatsApp para contacto
                 'created_at': user.get('created_at').isoformat() if user.get('created_at') else None
             }
             

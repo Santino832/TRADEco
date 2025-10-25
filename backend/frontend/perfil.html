@@ -46,6 +46,10 @@
             <hr>
             <div class="text-start">
               <p class="mb-2"><strong>Nombre:</strong> <span id="profileNombre"></span></p>
+              <p class="mb-2">
+                <strong><i class="bi bi-whatsapp text-success"></i> WhatsApp:</strong> 
+                <span id="profileWhatsapp"></span>
+              </p>
               <p class="mb-2"><strong>Teléfono:</strong> <span id="profileTelefono"></span></p>
               <p class="mb-2"><strong>Dirección:</strong> <span id="profileDireccion"></span></p>
               <p class="mb-2"><strong>Miembro desde:</strong> <span id="profileCreatedAt"></span></p>
@@ -194,16 +198,23 @@
             myProductsContainer.innerHTML += `
               <div class="col-md-6">
                 <div class="card h-100">
-                  <img src="${imageUrl}" 
-                       class="card-img-top" 
-                       alt="${product.nombre}"
-                       style="height: 200px; object-fit: cover;"
-                       onerror="this.src='https://via.placeholder.com/400x300'">
+                  <a href="producto.html?id=${product.id}" class="text-decoration-none">
+                    <img src="${imageUrl}" 
+                         class="card-img-top" 
+                         alt="${product.nombre}"
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.src='https://via.placeholder.com/400x300'">
+                  </a>
                   <div class="card-body">
-                    <span class="badge bg-success mb-2">${product.categoria}</span>
-                    <h6 class="card-title">${product.nombre}</h6>
-                    <p class="fw-bold text-success">$${product.precio}</p>
+                    <a href="producto.html?id=${product.id}" class="text-decoration-none">
+                      <span class="badge bg-success mb-2">${product.categoria}</span>
+                      <h6 class="card-title text-dark">${product.nombre}</h6>
+                      <p class="fw-bold text-success mb-3">$${product.precio}</p>
+                    </a>
                     <div class="d-flex gap-2">
+                      <a href="producto.html?id=${product.id}" class="btn btn-sm btn-outline-primary flex-fill">
+                        <i class="bi bi-eye"></i> Ver
+                      </a>
                       <button class="btn btn-sm btn-outline-danger" onclick="deleteMyProduct('${product.id}')">
                         <i class="bi bi-trash"></i>
                       </button>
