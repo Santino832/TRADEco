@@ -156,6 +156,14 @@
               <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información</h5>
             </div>
             <div class="card-body">
+              
+              <!-- Botón ver factura (solo si está completada) -->
+              <div id="invoiceButtonContainer" style="display: none;" class="mb-3">
+                <a href="#" id="viewInvoiceBtn" class="btn btn-success w-100">
+                  <i class="bi bi-receipt"></i> Ver Comprobante/Factura
+                </a>
+              </div>
+              
               <div class="mb-3" id="paymentMethodContainer" style="display: none;">
                 <h6 class="text-success">Método de Pago</h6>
                 <p class="mb-0" id="paymentMethod"></p>
@@ -541,24 +549,28 @@
     });
 
     document.getElementById('completeTransactionSellerBtn').addEventListener('click', async () => {
-      if (!confirm('¿Marcar esta transacción como completada?')) return;
+      if (!confirm('¿Marcar esta transacción como completada? Se generará un comprobante automáticamente.')) return;
       
       const result = await completeTransaction(transactionId);
       if (result.success) {
-        showAlert('¡Transacción completada!', 'success');
-        loadTransaction();
+        showAlert('¡Transacción completada! Redirigiendo a la factura...', 'success');
+        setTimeout(() => {
+          window.location.href = `factura.html?id=${transactionId}`;
+        }, 1500);
       } else {
         showAlert(result.message, 'danger');
       }
     });
 
     document.getElementById('completeTransactionBuyerBtn').addEventListener('click', async () => {
-      if (!confirm('¿Marcar esta transacción como completada?')) return;
+      if (!confirm('¿Marcar esta transacción como completada? Se generará un comprobante automáticamente.')) return;
       
       const result = await completeTransaction(transactionId);
       if (result.success) {
-        showAlert('¡Transacción completada!', 'success');
-        loadTransaction();
+        showAlert('¡Transacción completada! Redirigiendo a la factura...', 'success');
+        setTimeout(() => {
+          window.location.href = `factura.html?id=${transactionId}`;
+        }, 1500);
       } else {
         showAlert(result.message, 'danger');
       }
