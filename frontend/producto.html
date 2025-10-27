@@ -125,9 +125,14 @@
             <!-- BOTONES DE ACCIÓN -->
             <div class="d-grid gap-2">
               
-              <!-- Botón Reservar (para compradores) -->
+              <!-- Botón Reservar (para compradores cuando está DISPONIBLE) -->
               <button class="btn btn-success btn-lg" id="reserveBtn" style="display: none;">
                 <i class="bi bi-cart-plus"></i> Reservar este producto
+              </button>
+              
+              <!-- Botón Contactar por WhatsApp (para compradores cuando está DISPONIBLE) -->
+              <button class="btn btn-outline-success btn-lg" id="contactBtn" style="display: none;">
+                <i class="bi bi-whatsapp"></i> Contactar al vendedor
               </button>
               
               <!-- Botón Ver mi reserva (si ya lo reservé) -->
@@ -137,18 +142,13 @@
               
               <!-- Mensaje de producto reservado por otro -->
               <div class="alert alert-warning" id="reservedAlert" style="display: none;">
-                <i class="bi bi-lock"></i> Este producto está reservado
+                <i class="bi bi-lock"></i> Este producto está reservado por otro usuario
               </div>
               
               <!-- Mensaje de producto vendido -->
               <div class="alert alert-secondary" id="soldAlert" style="display: none;">
                 <i class="bi bi-x-circle"></i> Este producto ya fue vendido
               </div>
-              
-              <!-- Botón Contactar (para productos disponibles) -->
-              <button class="btn btn-outline-success btn-lg" id="contactBtn" style="display: none;">
-                <i class="bi bi-whatsapp"></i> Contactar al vendedor
-              </button>
               
               <!-- Botones de edición/eliminación (solo para el dueño) -->
               <div id="ownerActions" style="display: none;">
@@ -321,7 +321,9 @@
         const currentUser = getUser();
         if (currentUser && currentUser.id === product.user_id) {
           document.getElementById('ownerActions').style.display = 'block';
-          document.getElementById('contactBtn').style.display = 'none';
+        } else {
+          // Mostrar botones según el estado del producto
+          showActionButtons(product, currentUser);
         }
 
         // Cargar productos relacionados
@@ -330,6 +332,33 @@
       } catch (error) {
         loadingSpinner.style.display = 'none';
         showError();
+      }
+    }
+
+    // Mostrar botones de acción según el estado
+    function showActionButtons(product, currentUser) {
+      const estado = product.estado;
+      
+      if (estado === 'disponible') {
+        // Producto disponible - mostrar botón reservar y contactar
+        document.getElementById('reserveBtn').style.display = 'block';
+        document.getElementById('contactBtn').style.display = 'block';
+      } else if (estado === 'reservado') {
+        // Verificar si el usuario actual lo reservó
+        if (currentUser && product.reserved_by === currentUser.id) {
+          // Es mi reserva - mostrar botón para ver transacción
+          const viewBtn = document.getElementById('viewReservationBtn');
+          viewBtn.style.display = 'block';
+          if (product.transaction_id) {
+            viewBtn.href = `transaccion.html?id=${product.transaction_id}`;
+          }
+        } else {
+          // Reservado por otro
+          document.getElementById('reservedAlert').style.display = 'block';
+        }
+      } else if (estado === 'vendido') {
+        // Producto vendido
+        document.getElementById('soldAlert').style.display = 'block';
       }
     }
 
@@ -389,6 +418,46 @@
       }
     }
 
+    // Botón reservar
+    document.getElementById('reserveBtn').addEventListener('click', async () => {
+      if (!isAuthenticated()) {
+        showAlert('Debes iniciar sesión para reservar productos', 'warning');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+        return;
+      }
+
+      if (!confirm('¿Deseas reservar este producto e iniciar la transacción?')) {
+        return;
+      }
+
+      const btn = document.getElementById('reserveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Reservando...';
+
+      try {
+        const result = await createReservation(productId);
+        
+        if (result.success) {
+          showAlert('¡Producto reservado exitosamente!', 'success');
+          
+          // Redirigir a la página de la transacción
+          setTimeout(() => {
+            window.location.href = `transaccion.html?id=${result.data.transaction.id}`;
+          }, 1500);
+        } else {
+          showAlert(result.message, 'danger');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-cart-plus"></i> Reservar este producto';
+        }
+      } catch (error) {
+        showAlert('Error al reservar producto', 'danger');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-cart-plus"></i> Reservar este producto';
+      }
+    });
+
     // Botón contactar (WhatsApp)
     document.getElementById('contactBtn').addEventListener('click', async () => {
       if (!isAuthenticated()) {
@@ -414,11 +483,10 @@
             const productPrice = product.precio;
             
             // Limpiar el número (quitar espacios, guiones, etc)
-            // Limpiar el número (quitar espacios, guiones, etc)
             const cleanPhone = whatsapp.replace(/[\s\-()]/g, '');
             
             // Crear mensaje pre-escrito
-            const message = `Hola! Vi tu publicación "${productName}" en TRADEco por ${productPrice}. ¿Sigue disponible?`;
+            const message = `Hola! Vi tu publicación "${productName}" en TRADEco por $${productPrice}. ¿Sigue disponible?`;
             
             // Crear link de WhatsApp
             const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
