@@ -9,11 +9,13 @@ from config import Config
 # Importar modelos
 from models.user import User
 from models.product import Product
+from models.transaction import Transaction
 
 # Importar rutas
 from routes.auth import init_routes as init_auth_routes
 from routes.products import init_routes as init_products_routes
 from routes.users import init_routes as init_users_routes
+from routes.transactions import init_routes as init_transactions_routes
 
 # Crear aplicación Flask
 app = Flask(__name__)
@@ -53,15 +55,18 @@ except Exception as e:
 # Inicializar modelos
 user_model = User(db)
 product_model = Product(db)
+transaction_model = Transaction(db)
 
 # Registrar blueprints (rutas)
 auth_bp = init_auth_routes(db, user_model)
 products_bp = init_products_routes(db, product_model, user_model)
 users_bp = init_users_routes(db, user_model)
+transactions_bp = init_transactions_routes(db, transaction_model, product_model, user_model)
 
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(products_bp, url_prefix='/api/products')
 app.register_blueprint(users_bp, url_prefix='/api/users')
+app.register_blueprint(transactions_bp, url_prefix='/api/transactions')
 
 # Ruta para servir archivos estáticos (imágenes)
 @app.route('/uploads/products/<filename>')
@@ -105,7 +110,7 @@ def health_check():
     return jsonify({
         'success': True,
         'message': 'API TRADEco funcionando correctamente',
-        'version': '1.0.0'
+        'version': '2.0.0'
     }), 200
 
 # Manejador de errores 404
@@ -130,16 +135,30 @@ if __name__ == '__main__':
     print(f"📁 Carpeta de uploads: {Config.UPLOAD_FOLDER}")
     print(f"🔐 JWT expira en: {Config.JWT_EXPIRATION_HOURS} horas")
     print("\n📚 Endpoints disponibles:")
+    print("  === AUTENTICACIÓN ===")
     print("  POST   /api/auth/register")
     print("  POST   /api/auth/login")
+    print("\n  === PRODUCTOS ===")
     print("  GET    /api/products/")
     print("  POST   /api/products/")
     print("  GET    /api/products/<id>")
     print("  PUT    /api/products/<id>")
     print("  DELETE /api/products/<id>")
+    print("\n  === USUARIOS ===")
     print("  GET    /api/users/profile")
     print("  PUT    /api/users/profile")
     print("  GET    /api/users/<id>")
+    print("\n  === TRANSACCIONES ===")
+    print("  POST   /api/transactions/reserve")
+    print("  GET    /api/transactions/<id>")
+    print("  GET    /api/transactions/code/<code>")
+    print("  GET    /api/transactions/my-purchases")
+    print("  GET    /api/transactions/my-sales")
+    print("  POST   /api/transactions/<id>/seller-confirm")
+    print("  POST   /api/transactions/<id>/buyer-confirm-payment")
+    print("  POST   /api/transactions/<id>/complete")
+    print("  POST   /api/transactions/<id>/cancel")
+    print("  POST   /api/transactions/<id>/note")
     print("\n")
     
     app.run(

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRADEco - Transacción</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-light">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg" style="background-color:#e6ede9;">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-success d-flex align-items-center" href="index.html">
+        <i class="bi bi-tshirt me-2 text-success fs-4"></i> TRADEco
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto" id="navbarMenu">
+          <li class="nav-item"><a class="nav-link text-success" href="index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link text-success" href="publicar.html">Publicar</a></li>
+          <li class="nav-item"><a class="nav-link text-success" href="perfil.html">Perfil</a></li>
+          <li class="nav-item"><a class="nav-link text-success" href="beneficios.html">Beneficios</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- BREADCRUMB -->
+  <div class="container mt-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html" class="text-success">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="mis-transacciones.html" class="text-success">Mis Transacciones</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="container my-4">
+    
+    <!-- SPINNER DE CARGA -->
+    <div id="loadingSpinner" class="text-center py-5">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2 text-muted">Cargando transacción...</p>
+    </div>
+
+    <!-- CONTENEDOR DE TRANSACCIÓN -->
+    <div id="transactionContainer" style="display: none;">
+      
+      <!-- HEADER DE TRANSACCIÓN -->
+      <div class="card shadow-sm mb-4" style="background-color:#f5f7f6;">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h3 class="text-success mb-2">
+                <i class="bi bi-receipt"></i> Transacción
+              </h3>
+              <h4 class="mb-0">Código: <span class="badge bg-success fs-6" id="transactionCode"></span></h4>
+            </div>
+            <div class="col-md-4 text-md-end">
+              <div id="transactionStatus" class="fs-5"></div>
+              <small class="text-muted" id="transactionDate"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        
+        <!-- COLUMNA IZQUIERDA: PRODUCTO Y PARTES -->
+        <div class="col-lg-8 mb-4">
+          
+          <!-- PRODUCTO -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="bi bi-box-seam"></i> Producto</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <img id="productImage" src="" alt="Producto" class="img-fluid rounded">
+                </div>
+                <div class="col-md-8">
+                  <span class="badge bg-success mb-2" id="productCategoria"></span>
+                  <h5 id="productNombre"></h5>
+                  <p class="text-muted" id="productDescripcion"></p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <p class="mb-1"><strong>Talla:</strong> <span id="productTalla"></span></p>
+                    </div>
+                    <div>
+                      <h4 class="text-success mb-0" id="productPrecio"></h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PARTES INVOLUCRADAS -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="bi bi-people"></i> Partes Involucradas</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <h6 class="text-success">
+                    <i class="bi bi-cart-check"></i> Comprador
+                  </h6>
+                  <p class="mb-1"><strong id="buyerUsername"></strong></p>
+                  <p class="text-muted mb-0" id="buyerNombre"></p>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="text-success">
+                    <i class="bi bi-shop"></i> Vendedor
+                  </h6>
+                  <p class="mb-1"><strong id="sellerUsername"></strong></p>
+                  <p class="text-muted mb-1" id="sellerNombre"></p>
+                  <a href="#" id="sellerWhatsapp" class="btn btn-sm btn-success" style="display: none;">
+                    <i class="bi bi-whatsapp"></i> Contactar
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TIMELINE -->
+          <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de la Transacción</h5>
+            </div>
+            <div class="card-body">
+              <div class="timeline" id="timeline">
+                <!-- Se llenará dinámicamente -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA: ACCIONES -->
+        <div class="col-lg-4">
+          
+          <!-- INFORMACIÓN ADICIONAL -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3" id="paymentMethodContainer" style="display: none;">
+                <h6 class="text-success">Método de Pago</h6>
+                <p class="mb-0" id="paymentMethod"></p>
+              </div>
+              
+              <div class="mb-3">
+                <h6 class="text-success">Estado de Confirmaciones</h6>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" disabled id="sellerConfirmedCheck">
+                  <label class="form-check-label">
+                    Vendedor confirmó
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" disabled id="buyerPaidCheck">
+                  <label class="form-check-label">
+                    Comprador confirmó pago
+                  </label>
+                </div>
+              </div>
+
+              <div id="completedDateContainer" style="display: none;">
+                <h6 class="text-success">Completada el</h6>
+                <p class="mb-0" id="completedDate"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACCIONES DEL VENDEDOR -->
+          <div class="card shadow-sm mb-4" id="sellerActions" style="display: none;">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0"><i class="bi bi-shop"></i> Acciones del Vendedor</h5>
+            </div>
+            <div class="card-body">
+              
+              <button class="btn btn-success w-100 mb-2" id="sellerConfirmBtn">
+                <i class="bi bi-check-circle"></i> Confirmar Venta
+              </button>
+              
+              <button class="btn btn-primary w-100 mb-2" id="completeTransactionSellerBtn">
+                <i class="bi bi-check-all"></i> Marcar como Completada
+              </button>
+              
+              <button class="btn btn-outline-danger w-100" id="cancelTransactionSellerBtn">
+                <i class="bi bi-x-circle"></i> Cancelar Transacción
+              </button>
+            </div>
+          </div>
+
+          <!-- ACCIONES DEL COMPRADOR -->
+          <div class="card shadow-sm mb-4" id="buyerActions" style="display: none;">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="bi bi-cart-check"></i> Acciones del Comprador</h5>
+            </div>
+            <div class="card-body">
+              
+              <button class="btn btn-success w-100 mb-2" id="buyerConfirmPaymentBtn">
+                <i class="bi bi-cash-coin"></i> Confirmar que Pagué
+              </button>
+              
+              <button class="btn btn-primary w-100 mb-2" id="completeTransactionBuyerBtn">
+                <i class="bi bi-check-all"></i> Marcar como Completada
+              </button>
+              
+              <button class="btn btn-outline-danger w-100" id="cancelTransactionBuyerBtn">
+                <i class="bi bi-x-circle"></i> Cancelar Transacción
+              </button>
+            </div>
+          </div>
+
+          <!-- AGREGAR NOTA -->
+          <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="bi bi-chat-left-text"></i> Agregar Nota</h5>
+            </div>
+            <div class="card-body">
+              <textarea class="form-control mb-2" id="noteText" rows="3" placeholder="Escribe una nota o comentario..."></textarea>
+              <button class="btn btn-success w-100" id="addNoteBtn">
+                <i class="bi bi-plus-circle"></i> Agregar Nota
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MENSAJE DE ERROR -->
+    <div id="errorContainer" class="text-center py-5" style="display: none;">
+      <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
+      <h3 class="mt-3">Transacción no encontrada</h3>
+      <p class="text-muted">La transacción que buscas no existe o no tienes acceso a ella.</p>
+      <a href="mis-transacciones.html" class="btn btn-success mt-3">
+        <i class="bi bi-arrow-left"></i> Ver mis transacciones
+      </a>
+    </div>
+
+  </main>
+
+  <!-- MODAL CONFIRMAR VENTA -->
+  <div class="modal fade" id="confirmSaleModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Confirmar Venta</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Indica el método de pago acordado con el comprador:</p>
+          <select class="form-select" id="paymentMethodSelect">
+            <option value="">Selecciona un método</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia bancaria">Transferencia bancaria</option>
+            <option value="MercadoPago">MercadoPago</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success" id="confirmSaleSubmitBtn">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CANCELAR -->
+  <div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Cancelar Transacción</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>¿Estás seguro que deseas cancelar esta transacción?</p>
+          <label class="form-label">Motivo (opcional):</label>
+          <textarea class="form-control" id="cancelReason" rows="3" placeholder="Escribe el motivo de la cancelación..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, volver</button>
+          <button type="button" class="btn btn-danger" id="cancelSubmitBtn">Sí, cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="text-center py-3 mt-5" style="background-color:#e6ede9;">
+    <p class="mb-0 text-success">🌱 TRADEco - Moda Circular & Trueques</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="api.js"></script>
+  
+  <script>
+    // Verificar autenticación
+    if (!isAuthenticated()) {
+      showAlert('Debes iniciar sesión para ver transacciones', 'warning');
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 2000);
+    }
+
+    // Obtener ID de la transacción
+    const urlParams = new URLSearchParams(window.location.search);
+    const transactionId = urlParams.get('id');
+    
+    let currentTransaction = null;
+    let currentUser = getUser();
+
+    // Cargar transacción
+    async function loadTransaction() {
+      if (!transactionId) {
+        showError();
+        return;
+      }
+
+      try {
+        const result = await getTransaction(transactionId);
+        
+        document.getElementById('loadingSpinner').style.display = 'none';
+        
+        if (!result.success) {
+          showError();
+          return;
+        }
+
+        currentTransaction = result.data;
+        renderTransaction();
+        
+      } catch (error) {
+        document.getElementById('loadingSpinner').style.display = 'none';
+        showError();
+      }
+    }
+
+    // Renderizar transacción
+    function renderTransaction() {
+      const t = currentTransaction;
+      
+      // Mostrar container
+      document.getElementById('transactionContainer').style.display = 'block';
+      
+      // Header
+      document.getElementById('transactionCode').textContent = t.transaction_code;
+      document.getElementById('transactionStatus').innerHTML = getStatusBadge(t.status);
+      document.getElementById('transactionDate').textContent = `Creada: ${formatDate(t.created_at)}`;
+      
+      // Producto
+      const imageUrl = t.product_snapshot.imagen_url 
+        ? `http://localhost:5000${t.product_snapshot.imagen_url}` 
+        : 'https://via.placeholder.com/300';
+      document.getElementById('productImage').src = imageUrl;
+      document.getElementById('productCategoria').textContent = t.product_snapshot.categoria;
+      document.getElementById('productNombre').textContent = t.product_snapshot.nombre;
+      document.getElementById('productDescripcion').textContent = t.product_snapshot.descripcion;
+      document.getElementById('productTalla').textContent = t.product_snapshot.talla;
+      document.getElementById('productPrecio').textContent = `$${t.product_snapshot.precio}`;
+      
+      // Partes
+      document.getElementById('buyerUsername').textContent = `@${t.buyer.username}`;
+      document.getElementById('buyerNombre').textContent = t.buyer.nombre;
+      document.getElementById('sellerUsername').textContent = `@${t.seller.username}`;
+      document.getElementById('sellerNombre').textContent = t.seller.nombre;
+      
+      // WhatsApp del vendedor (solo para comprador)
+      if (currentUser.id === t.buyer_id && t.seller.whatsapp) {
+        const whatsappBtn = document.getElementById('sellerWhatsapp');
+        whatsappBtn.style.display = 'inline-block';
+        const cleanPhone = t.seller.whatsapp.replace(/[\s\-()]/g, '');
+        const message = `Hola! Sobre la transacción ${t.transaction_code} (${t.product_snapshot.nombre})`;
+        whatsappBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+      }
+      
+      // Método de pago
+      if (t.payment_method) {
+        document.getElementById('paymentMethodContainer').style.display = 'block';
+        document.getElementById('paymentMethod').textContent = t.payment_method;
+      }
+      
+      // Confirmaciones
+      document.getElementById('sellerConfirmedCheck').checked = t.seller_confirmed;
+      document.getElementById('buyerPaidCheck').checked = t.buyer_paid;
+      
+      // Fecha de completado
+      if (t.completed_at) {
+        document.getElementById('completedDateContainer').style.display = 'block';
+        document.getElementById('completedDate').textContent = formatDate(t.completed_at);
+      }
+      
+      // Timeline
+      renderTimeline(t.timeline);
+      
+      // Acciones según rol
+      if (currentUser.id === t.seller_id) {
+        renderSellerActions(t);
+      } else if (currentUser.id === t.buyer_id) {
+        renderBuyerActions(t);
+      }
+    }
+
+    // Renderizar timeline
+    function renderTimeline(timeline) {
+      const timelineDiv = document.getElementById('timeline');
+      timelineDiv.innerHTML = '';
+      
+      timeline.forEach((event, index) => {
+        const isLast = index === timeline.length - 1;
+        timelineDiv.innerHTML += `
+          <div class="timeline-item mb-3">
+            <div class="d-flex align-items-start">
+              <div class="me-3">
+                <div class="timeline-icon ${isLast ? 'bg-success' : 'bg-secondary'} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-${isLast ? 'check-circle' : 'circle-fill'}"></i>
+                </div>
+                ${!isLast ? '<div class="timeline-line" style="height: 30px; width: 2px; background-color: #ddd; margin-left: 19px;"></div>' : ''}
+              </div>
+              <div class="flex-grow-1">
+                <p class="mb-0"><strong>${event.message}</strong></p>
+                <small class="text-muted">${formatDate(event.timestamp)}</small>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Acciones del vendedor
+    function renderSellerActions(t) {
+      const actionsDiv = document.getElementById('sellerActions');
+      
+      if (t.status === 'cancelada' || t.status === 'completada') {
+        actionsDiv.style.display = 'none';
+        return;
+      }
+      
+      actionsDiv.style.display = 'block';
+      
+      // Confirmar venta
+      const confirmBtn = document.getElementById('sellerConfirmBtn');
+      if (t.seller_confirmed) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Venta Confirmada';
+      }
+      
+      // Completar
+      const completeBtn = document.getElementById('completeTransactionSellerBtn');
+      if (!t.seller_confirmed || !t.buyer_paid) {
+        completeBtn.disabled = true;
+        completeBtn.title = 'Ambas partes deben confirmar primero';
+      }
+    }
+
+    // Acciones del comprador
+    function renderBuyerActions(t) {
+      const actionsDiv = document.getElementById('buyerActions');
+      
+      if (t.status === 'cancelada' || t.status === 'completada') {
+        actionsDiv.style.display = 'none';
+        return;
+      }
+      
+      actionsDiv.style.display = 'block';
+      
+      // Confirmar pago
+      const confirmPayBtn = document.getElementById('buyerConfirmPaymentBtn');
+      if (!t.seller_confirmed) {
+        confirmPayBtn.disabled = true;
+        confirmPayBtn.title = 'Espera a que el vendedor confirme';
+      }
+      if (t.buyer_paid) {
+        confirmPayBtn.disabled = true;
+        confirmPayBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Pago Confirmado';
+      }
+      
+      // Completar
+      const completeBtn = document.getElementById('completeTransactionBuyerBtn');
+      if (!t.seller_confirmed || !t.buyer_paid) {
+        completeBtn.disabled = true;
+        completeBtn.title = 'Ambas partes deben confirmar primero';
+      }
+    }
+
+    function showError() {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      document.getElementById('transactionContainer').style.display = 'none';
+      document.getElementById('errorContainer').style.display = 'block';
+    }
+
+    // Eventos de botones
+    document.getElementById('sellerConfirmBtn').addEventListener('click', () => {
+      new bootstrap.Modal(document.getElementById('confirmSaleModal')).show();
+    });
+
+    document.getElementById('confirmSaleSubmitBtn').addEventListener('click', async () => {
+      const paymentMethod = document.getElementById('paymentMethodSelect').value;
+      if (!paymentMethod) {
+        showAlert('Selecciona un método de pago', 'warning');
+        return;
+      }
+      
+      const result = await sellerConfirmSale(transactionId, paymentMethod);
+      if (result.success) {
+        showAlert('Venta confirmada exitosamente', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('confirmSaleModal')).hide();
+        loadTransaction();
+      } else {
+        showAlert(result.message, 'danger');
+      }
+    });
+
+    document.getElementById('buyerConfirmPaymentBtn').addEventListener('click', async () => {
+      if (!confirm('¿Confirmas que realizaste el pago?')) return;
+      
+      const result = await buyerConfirmPayment(transactionId);
+      if (result.success) {
+        showAlert('Pago confirmado exitosamente', 'success');
+        loadTransaction();
+      } else {
+        showAlert(result.message, 'danger');
+      }
+    });
+
+    document.getElementById('completeTransactionSellerBtn').addEventListener('click', async () => {
+      if (!confirm('¿Marcar esta transacción como completada?')) return;
+      
+      const result = await completeTransaction(transactionId);
+      if (result.success) {
+        showAlert('¡Transacción completada!', 'success');
+        loadTransaction();
+      } else {
+        showAlert(result.message, 'danger');
+      }
+    });
+
+    document.getElementById('completeTransactionBuyerBtn').addEventListener('click', async () => {
+      if (!confirm('¿Marcar esta transacción como completada?')) return;
+      
+      const result = await completeTransaction(transactionId);
+      if (result.success) {
+        showAlert('¡Transacción completada!', 'success');
+        loadTransaction();
+      } else {
+        showAlert(result.message, 'danger');
+      }
+    });
+
+    document.getElementById('cancelTransactionSellerBtn').addEventListener('click', () => {
+      new bootstrap.Modal(document.getElementById('cancelModal')).show();
+    });
+
+    document.getElementById('cancelTransactionBuyerBtn').addEventListener('click', () => {
+      new bootstrap.Modal(document.getElementById('cancelModal')).show();
+    });
+
+    document.getElementById('cancelSubmitBtn').addEventListener('click', async () => {
+      const reason = document.getElementById('cancelReason').value;
+      
+      const result = await cancelTransaction(transactionId, reason);
+      if (result.success) {
+        showAlert('Transacción cancelada', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
+        loadTransaction();
+      } else {
+        showAlert(result.message, 'danger');
+      }
+    });
+
+    document.getElementById('addNoteBtn').addEventListener('click', async () => {
+      const note = document.getElementById('noteText').value.trim();
+      if (!note) {
+        showAlert('Escribe una nota primero', 'warning');
+        return;
+      }
+      
+      const result = await addTransactionNote(transactionId, note);
+      if (result.success) {
+        showAlert('Nota agregada', 'success');
+        document.getElementById('noteText').value = '';
+        loadTransaction();
+      } else {
+        showAlert(result.message, 'danger');
+      }
+    });
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', loadTransaction);
+  </script>
+</body>
+</html>

@@ -57,6 +57,9 @@
             <button class="btn btn-outline-success w-100 mt-3" data-bs-toggle="modal" data-bs-target="#editProfileModal">
               <i class="bi bi-pencil"></i> Editar Perfil
             </button>
+            <a href="mis-transacciones.html" class="btn btn-success w-100 mt-2">
+              <i class="bi bi-receipt-cutoff"></i> Ver Transacciones
+            </a>
           </div>
         </div>
       </div>
@@ -109,7 +112,14 @@
               <input type="text" class="form-control" id="editNombre" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Teléfono</label>
+              <label class="form-label">
+                <i class="bi bi-whatsapp text-success"></i> WhatsApp *
+              </label>
+              <input type="tel" class="form-control" id="editWhatsapp" placeholder="+54 9 11 1234-5678" required>
+              <small class="text-muted">Para que los compradores puedan contactarte</small>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Teléfono alternativo</label>
               <input type="tel" class="form-control" id="editTelefono" placeholder="+54 11 1234-5678">
             </div>
             <div class="mb-3">
@@ -157,6 +167,7 @@
           document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
           document.getElementById('profileEmail').textContent = currentUser.email;
           document.getElementById('profileNombre').textContent = currentUser.nombre;
+          document.getElementById('profileWhatsapp').textContent = currentUser.whatsapp || 'No especificado';
           document.getElementById('profileTelefono').textContent = currentUser.telefono || 'No especificado';
           document.getElementById('profileDireccion').textContent = currentUser.direccion || 'No especificada';
           
@@ -259,6 +270,7 @@
       
       const userData = {
         nombre: document.getElementById('editNombre').value,
+        whatsapp: document.getElementById('editWhatsapp').value,
         telefono: document.getElementById('editTelefono').value,
         direccion: document.getElementById('editDireccion').value
       };
@@ -287,6 +299,7 @@
     document.getElementById('editProfileModal').addEventListener('show.bs.modal', () => {
       if (currentUser) {
         document.getElementById('editNombre').value = currentUser.nombre;
+        document.getElementById('editWhatsapp').value = currentUser.whatsapp || '';
         document.getElementById('editTelefono').value = currentUser.telefono || '';
         document.getElementById('editDireccion').value = currentUser.direccion || '';
       }

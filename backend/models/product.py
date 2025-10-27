@@ -6,6 +6,14 @@ class Product:
     
     CATEGORIES = ["Remeras", "Abrigos", "Pantalones", "Vestidos", "Calzado", "Accesorios"]
     
+    # Estados del producto
+    STATUS = {
+        'AVAILABLE': 'disponible',      # Disponible para compra
+        'RESERVED': 'reservado',         # Reservado (en proceso de venta)
+        'SOLD': 'vendido',               # Vendido
+        'INACTIVE': 'inactivo'           # Desactivado por el usuario
+    }
+    
     def __init__(self, db):
         self.collection = db.products
         self._create_indexes()
@@ -14,6 +22,7 @@ class Product:
         """Crear índices para búsquedas eficientes"""
         self.collection.create_index("user_id")
         self.collection.create_index("categoria")
+        self.collection.create_index("estado")
         self.collection.create_index("created_at")
         self.collection.create_index([("nombre", "text"), ("descripcion", "text")])
     
@@ -28,7 +37,11 @@ class Product:
             "imagen_url": data.get("imagen_url", ""),
             "user_id": user_id,
             "username": data.get("username", ""),
-            "estado": "disponible",  # disponible, vendido, reservado
+            "estado": self.STATUS['AVAILABLE'],  # Disponible por defecto
+            "stock": 1,  # Siempre 1 (producto único de segunda mano)
+            "reserved_by": None,  # ID del usuario que lo reservó
+            "transaction_id": None,  # ID de la transacción activa
+            "views": 0,  # Contador de vistas
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
@@ -39,7 +52,10 @@ class Product:
     def find_all(self, skip=0, limit=20, filters=None):
         """Obtener todos los productos con paginación"""
         query = filters or {}
-        query["estado"] = "disponible"
+        
+        # Por defecto, solo mostrar productos disponibles
+        if "estado" not in query:
+            query["estado"] = self.STATUS['AVAILABLE']
         
         products = self.collection.find(query)\
             .sort("created_at", -1)\
@@ -67,7 +83,10 @@ class Product:
     def search(self, query_text, skip=0, limit=20):
         """Buscar productos por texto"""
         products = self.collection.find(
-            {"$text": {"$search": query_text}, "estado": "disponible"}
+            {
+                "$text": {"$search": query_text}, 
+                "estado": self.STATUS['AVAILABLE']
+            }
         ).skip(skip).limit(limit)
         
         return list(products)
@@ -75,7 +94,10 @@ class Product:
     def filter_by_category(self, categoria, skip=0, limit=20):
         """Filtrar productos por categoría"""
         products = self.collection.find(
-            {"categoria": categoria, "estado": "disponible"}
+            {
+                "categoria": categoria, 
+                "estado": self.STATUS['AVAILABLE']
+            }
         ).sort("created_at", -1).skip(skip).limit(limit)
         
         return list(products)
@@ -106,13 +128,89 @@ class Product:
         })
         return result.deleted_count > 0
     
+    def reserve(self, product_id, buyer_id, transaction_id):
+        """
+        Reservar un producto para una transacción
+        
+        Args:
+            product_id: ID del producto
+            buyer_id: ID del comprador
+            transaction_id: ID de la transacción
+        
+        Returns:
+            bool: True si se reservó exitosamente
+        """
+        product = self.find_by_id(product_id)
+        
+        # Verificar que esté disponible
+        if not product or product['estado'] != self.STATUS['AVAILABLE']:
+            return False
+        
+        # Verificar que el comprador no sea el vendedor
+        if product['user_id'] == buyer_id:
+            return False
+        
+        result = self.collection.update_one(
+            {
+                "_id": ObjectId(product_id),
+                "estado": self.STATUS['AVAILABLE']
+            },
+            {
+                "$set": {
+                    "estado": self.STATUS['RESERVED'],
+                    "reserved_by": buyer_id,
+                    "transaction_id": transaction_id,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return result.modified_count > 0
+    
+    def unreserve(self, product_id):
+        """Liberar una reserva (cuando se cancela una transacción)"""
+        result = self.collection.update_one(
+            {"_id": ObjectId(product_id)},
+            {
+                "$set": {
+                    "estado": self.STATUS['AVAILABLE'],
+                    "reserved_by": None,
+                    "transaction_id": None,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        return result.modified_count > 0
+    
+    def mark_as_sold(self, product_id, transaction_id):
+        """Marcar producto como vendido"""
+        result = self.collection.update_one(
+            {"_id": ObjectId(product_id)},
+            {
+                "$set": {
+                    "estado": self.STATUS['SOLD'],
+                    "stock": 0,
+                    "transaction_id": transaction_id,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        return result.modified_count > 0
+    
     def change_status(self, product_id, status, user_id):
-        """Cambiar estado del producto"""
+        """Cambiar estado del producto (solo el dueño)"""
         result = self.collection.update_one(
             {"_id": ObjectId(product_id), "user_id": user_id},
             {"$set": {"estado": status, "updated_at": datetime.utcnow()}}
         )
         return result.modified_count > 0
+    
+    def increment_views(self, product_id):
+        """Incrementar contador de vistas"""
+        self.collection.update_one(
+            {"_id": ObjectId(product_id)},
+            {"$inc": {"views": 1}}
+        )
     
     def count(self, filters=None):
         """Contar productos"""
@@ -134,6 +232,10 @@ class Product:
             "imagen_url": product.get("imagen_url", ""),
             "user_id": product.get("user_id"),
             "username": product.get("username", ""),
-            "estado": product.get("estado", "disponible"),
+            "estado": product.get("estado", self.STATUS['AVAILABLE']),
+            "stock": product.get("stock", 1),
+            "reserved_by": product.get("reserved_by"),
+            "transaction_id": product.get("transaction_id"),
+            "views": product.get("views", 0),
             "created_at": product.get("created_at").isoformat() if product.get("created_at") else None
         }

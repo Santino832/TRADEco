@@ -124,8 +124,30 @@
 
             <!-- BOTONES DE ACCIÓN -->
             <div class="d-grid gap-2">
-              <button class="btn btn-success btn-lg" id="contactBtn">
-                <i class="bi bi-chat-dots"></i> Contactar al vendedor
+              
+              <!-- Botón Reservar (para compradores) -->
+              <button class="btn btn-success btn-lg" id="reserveBtn" style="display: none;">
+                <i class="bi bi-cart-plus"></i> Reservar este producto
+              </button>
+              
+              <!-- Botón Ver mi reserva (si ya lo reservé) -->
+              <a href="#" class="btn btn-info btn-lg" id="viewReservationBtn" style="display: none;">
+                <i class="bi bi-receipt"></i> Ver mi reserva
+              </a>
+              
+              <!-- Mensaje de producto reservado por otro -->
+              <div class="alert alert-warning" id="reservedAlert" style="display: none;">
+                <i class="bi bi-lock"></i> Este producto está reservado
+              </div>
+              
+              <!-- Mensaje de producto vendido -->
+              <div class="alert alert-secondary" id="soldAlert" style="display: none;">
+                <i class="bi bi-x-circle"></i> Este producto ya fue vendido
+              </div>
+              
+              <!-- Botón Contactar (para productos disponibles) -->
+              <button class="btn btn-outline-success btn-lg" id="contactBtn" style="display: none;">
+                <i class="bi bi-whatsapp"></i> Contactar al vendedor
               </button>
               
               <!-- Botones de edición/eliminación (solo para el dueño) -->
@@ -367,8 +389,8 @@
       }
     }
 
-    // Botón contactar
-    document.getElementById('contactBtn').addEventListener('click', () => {
+    // Botón contactar (WhatsApp)
+    document.getElementById('contactBtn').addEventListener('click', async () => {
       if (!isAuthenticated()) {
         showAlert('Debes iniciar sesión para contactar al vendedor', 'warning');
         setTimeout(() => {
@@ -377,13 +399,44 @@
         return;
       }
       
-      // Por ahora redirigir al chat
-      window.location.href = 'chat.html';
+      try {
+        // Obtener información del vendedor
+        const result = await getProduct(productId);
+        if (result.success && result.data) {
+          const product = result.data;
+          
+          // Obtener info completa del vendedor para el WhatsApp
+          const userResult = await getUserProfile(product.user_id);
+          
+          if (userResult.success && userResult.data.whatsapp) {
+            const whatsapp = userResult.data.whatsapp;
+            const productName = product.nombre;
+            const productPrice = product.precio;
+            
+            // Limpiar el número (quitar espacios, guiones, etc)
+            // Limpiar el número (quitar espacios, guiones, etc)
+            const cleanPhone = whatsapp.replace(/[\s\-()]/g, '');
+            
+            // Crear mensaje pre-escrito
+            const message = `Hola! Vi tu publicación "${productName}" en TRADEco por ${productPrice}. ¿Sigue disponible?`;
+            
+            // Crear link de WhatsApp
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+            
+            // Abrir en nueva pestaña
+            window.open(whatsappUrl, '_blank');
+          } else {
+            showAlert('El vendedor no tiene WhatsApp configurado', 'warning');
+          }
+        }
+      } catch (error) {
+        showAlert('Error al obtener información del vendedor', 'danger');
+      }
     });
 
     // Botón editar
     document.getElementById('editBtn').addEventListener('click', () => {
-      showAlert('Función de edición en desarrollo', 'info');
+      window.location.href = `editar-producto.html?id=${productId}`;
     });
 
     // Botón eliminar
