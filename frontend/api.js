@@ -41,153 +41,7 @@ const isAuthenticated = () => {
 // Registrar usuario
 async function register(userData) {
     try {
-        const response = await fetch(`${API_URL}/transactions/${transactionId}/cancel`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ reason })
-        });
-        
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error al cancelar transacción:', error);
-        return { success: false, message: 'Error de conexión con el servidor' };
-    }
-}
-
-// Agregar nota a transacción
-async function addTransactionNote(transactionId, note) {
-    try {
-        const token = getToken();
-        
-        if (!token) {
-            return { success: false, message: 'Debes iniciar sesión' };
-        }
-        
-        const response = await fetch(`${API_URL}/transactions/${transactionId}/note`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ note })
-        });
-        
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error al agregar nota:', error);
-        return { success: false, message: 'Error de conexión con el servidor' };
-    }
-}
-
-// ==================== UTILIDADES DE UI ====================
-
-// Mostrar mensajes de alerta
-function showAlert(message, type = 'info') {
-    // Crear elemento de alerta
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
-    alertDiv.style.zIndex = '9999';
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    document.body.appendChild(alertDiv);
-    
-    // Auto-cerrar después de 5 segundos
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
-
-// Verificar autenticación en páginas protegidas
-function requireAuth() {
-    if (!isAuthenticated()) {
-        showAlert('Debes iniciar sesión para acceder a esta página', 'warning');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 2000);
-        return false;
-    }
-    return true;
-}
-
-// Actualizar navbar con datos del usuario
-function updateNavbar() {
-    const user = getUser();
-    const navbarNav = document.querySelector('#navbarNav .navbar-nav');
-    
-    if (user && navbarNav) {
-        // Buscar el item de "Perfil" y actualizarlo
-        const perfilLink = navbarNav.querySelector('a[href="perfil.html"]');
-        if (perfilLink) {
-            perfilLink.textContent = `Perfil (${user.username})`;
-        }
-        
-        // Agregar botón de logout si no existe
-        if (!document.getElementById('logoutBtn')) {
-            const logoutItem = document.createElement('li');
-            logoutItem.className = 'nav-item';
-            logoutItem.innerHTML = `
-                <a class="nav-link text-danger" href="#" id="logoutBtn">
-                    <i class="bi bi-box-arrow-right"></i> Salir
-                </a>
-            `;
-            navbarNav.appendChild(logoutItem);
-            
-            document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                e.preventDefault();
-                if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
-                    logout();
-                }
-            });
-        }
-    }
-}
-
-// Formatear fecha para mostrar
-function formatDate(isoString) {
-    if (!isoString) return 'N/A';
-    const date = new Date(isoString);
-    return date.toLocaleDateString('es-AR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-// Obtener badge de estado de transacción
-function getStatusBadge(status) {
-    const badges = {
-        'pendiente': '<span class="badge bg-warning">Pendiente</span>',
-        'confirmada': '<span class="badge bg-info">Confirmada</span>',
-        'pago_confirmado': '<span class="badge bg-primary">Pago Confirmado</span>',
-        'completada': '<span class="badge bg-success">Completada</span>',
-        'cancelada': '<span class="badge bg-danger">Cancelada</span>',
-        'en_disputa': '<span class="badge bg-secondary">En Disputa</span>'
-    };
-    
-    return badges[status] || '<span class="badge bg-secondary">Desconocido</span>';
-}
-
-// Obtener badge de estado de producto
-function getProductStatusBadge(estado) {
-    const badges = {
-        'disponible': '<span class="badge bg-success">Disponible</span>',
-        'reservado': '<span class="badge bg-warning">Reservado</span>',
-        'vendido': '<span class="badge bg-secondary">Vendido</span>',
-        'inactivo': '<span class="badge bg-dark">Inactivo</span>'
-    };
-    
-    return badges[estado] || '<span class="badge bg-secondary">Desconocido</span>';
-}(`${API_URL}/auth/register`, {
+        const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -688,4 +542,150 @@ async function cancelTransaction(transactionId, reason = '') {
             return { success: false, message: 'Debes iniciar sesión' };
         }
         
-        const response = await fetch
+        const response = await fetch(`${API_URL}/transactions/${transactionId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ reason })
+        });
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error al cancelar transacción:', error);
+        return { success: false, message: 'Error de conexión con el servidor' };
+    }
+}
+
+// Agregar nota a transacción
+async function addTransactionNote(transactionId, note) {
+    try {
+        const token = getToken();
+        
+        if (!token) {
+            return { success: false, message: 'Debes iniciar sesión' };
+        }
+        
+        const response = await fetch(`${API_URL}/transactions/${transactionId}/note`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ note })
+        });
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error al agregar nota:', error);
+        return { success: false, message: 'Error de conexión con el servidor' };
+    }
+}
+
+// ==================== UTILIDADES DE UI ====================
+
+// Mostrar mensajes de alerta
+function showAlert(message, type = 'info') {
+    // Crear elemento de alerta
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto-cerrar después de 5 segundos
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Verificar autenticación en páginas protegidas
+function requireAuth() {
+    if (!isAuthenticated()) {
+        showAlert('Debes iniciar sesión para acceder a esta página', 'warning');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+        return false;
+    }
+    return true;
+}
+
+// Actualizar navbar con datos del usuario
+function updateNavbar() {
+    const user = getUser();
+    const navbarNav = document.querySelector('#navbarNav .navbar-nav');
+    
+    if (user && navbarNav) {
+        // Buscar el item de "Perfil" y actualizarlo
+        const perfilLink = navbarNav.querySelector('a[href="perfil.html"]');
+        if (perfilLink) {
+            perfilLink.textContent = `Perfil (${user.username})`;
+        }
+        
+        // Agregar botón de logout si no existe
+        if (!document.getElementById('logoutBtn')) {
+            const logoutItem = document.createElement('li');
+            logoutItem.className = 'nav-item';
+            logoutItem.innerHTML = `
+                <a class="nav-link text-danger" href="#" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </a>
+            `;
+            navbarNav.appendChild(logoutItem);
+            
+            document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+                    logout();
+                }
+            });
+        }
+    }
+}
+
+// Formatear fecha para mostrar
+function formatDate(isoString) {
+    if (!isoString) return 'N/A';
+    const date = new Date(isoString);
+    return date.toLocaleDateString('es-AR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Obtener badge de estado de transacción
+function getStatusBadge(status) {
+    const badges = {
+        'pendiente': '<span class="badge bg-warning">Pendiente</span>',
+        'confirmada': '<span class="badge bg-info">Confirmada</span>',
+        'pago_confirmado': '<span class="badge bg-primary">Pago Confirmado</span>',
+        'completada': '<span class="badge bg-success">Completada</span>',
+        'cancelada': '<span class="badge bg-danger">Cancelada</span>',
+        'en_disputa': '<span class="badge bg-secondary">En Disputa</span>'
+    };
+    
+    return badges[status] || '<span class="badge bg-secondary">Desconocido</span>';
+}
+
+// Obtener badge de estado de producto
+function getProductStatusBadge(estado) {
+    const badges = {
+        'disponible': '<span class="badge bg-success">Disponible</span>',
+        'reservado': '<span class="badge bg-warning">Reservado</span>',
+        'vendido': '<span class="badge bg-secondary">Vendido</span>',
+        'inactivo': '<span class="badge bg-dark">Inactivo</span>'
+    };
+    
+    return badges[estado] || '<span class="badge bg-secondary">Desconocido</span>';
+}

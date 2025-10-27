@@ -33,10 +33,16 @@ CORS(app, resources={
 # Inicializar carpetas
 Config.init_app()
 
+# Carpeta del frontend (ahora está fuera de backend)
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
+
 # Mostrar información de debug
 print(f"📁 Directorio de trabajo: {os.getcwd()}")
+print(f"📁 Carpeta de backend: {os.path.dirname(__file__)}")
+print(f"📁 Carpeta de frontend: {FRONTEND_DIR}")
+print(f"📁 Frontend existe: {os.path.exists(FRONTEND_DIR)}")
 print(f"📁 Carpeta de uploads: {os.path.abspath(Config.UPLOAD_FOLDER)}")
-print(f"📁 Existe: {os.path.exists(Config.UPLOAD_FOLDER)}")
+print(f"📁 Uploads existe: {os.path.exists(Config.UPLOAD_FOLDER)}")
 print("")
 
 # Conectar a MongoDB
@@ -84,24 +90,32 @@ def serve_uploads(filename):
         print(f"❌ Error al servir archivo: {e}")
         return jsonify({'error': 'Archivo no encontrado'}), 404
 
-# Servir frontend (HTML, CSS, JS)
+# Servir frontend (HTML, CSS, JS) - RUTA CORREGIDA
 @app.route('/')
 def index():
     """Servir página principal"""
-    return send_from_directory('./frontend', 'index.html')
+    return send_from_directory(FRONTEND_DIR, 'index.html')
 
 @app.route('/<path:path>')
 def serve_frontend(path):
     """Servir archivos del frontend"""
-    # Si el archivo existe en frontend, servirlo
-    frontend_dir = os.path.join(os.path.dirname(__file__), './frontend')
-    if os.path.exists(os.path.join(frontend_dir, path)):
-        return send_from_directory(frontend_dir, path)
-    # Si no existe, devolver 404
-    return jsonify({
-        'success': False,
-        'message': 'Ruta no encontrada'
-    }), 404
+    try:
+        # Verificar si el archivo existe en frontend
+        file_path = os.path.join(FRONTEND_DIR, path)
+        if os.path.exists(file_path):
+            return send_from_directory(FRONTEND_DIR, path)
+        else:
+            # Si no existe, devolver 404
+            return jsonify({
+                'success': False,
+                'message': 'Archivo no encontrado'
+            }), 404
+    except Exception as e:
+        print(f"❌ Error al servir frontend: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Error al servir archivo'
+        }), 500
 
 # Ruta de prueba
 @app.route('/api/health', methods=['GET'])
@@ -110,7 +124,9 @@ def health_check():
     return jsonify({
         'success': True,
         'message': 'API TRADEco funcionando correctamente',
-        'version': '2.0.0'
+        'version': '2.0.0',
+        'frontend_path': FRONTEND_DIR,
+        'frontend_exists': os.path.exists(FRONTEND_DIR)
     }), 200
 
 # Manejador de errores 404
@@ -132,6 +148,7 @@ def internal_error(error):
 # Ejecutar aplicación
 if __name__ == '__main__':
     print(f"🚀 Servidor iniciando en http://localhost:{Config.PORT}")
+    print(f"📁 Sirviendo frontend desde: {FRONTEND_DIR}")
     print(f"📁 Carpeta de uploads: {Config.UPLOAD_FOLDER}")
     print(f"🔐 JWT expira en: {Config.JWT_EXPIRATION_HOURS} horas")
     print("\n📚 Endpoints disponibles:")
