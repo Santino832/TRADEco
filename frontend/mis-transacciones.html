@@ -188,10 +188,16 @@
       const containerDiv = document.getElementById('salesContainer');
       const noDataDiv = document.getElementById('noSales');
 
+      loadingDiv.style.display = 'block';
+      containerDiv.innerHTML = '';
+      noDataDiv.style.display = 'none';
+
       try {
         const result = await getMySales();
         
         loadingDiv.style.display = 'none';
+        
+        console.log('Resultado de ventas:', result); // Debug
         
         if (result.success && result.data.length > 0) {
           containerDiv.innerHTML = '';
@@ -203,8 +209,9 @@
           noDataDiv.style.display = 'block';
         }
       } catch (error) {
+        console.error('Error al cargar ventas:', error);
         loadingDiv.style.display = 'none';
-        showAlert('Error al cargar ventas', 'danger');
+        showAlert('Error al cargar ventas: ' + error.message, 'danger');
       }
     }
 
@@ -296,10 +303,14 @@
 
     // Event listener para tabs
     document.getElementById('sales-tab').addEventListener('click', () => {
+      console.log('🔍 Tab Ventas clickeado');
       const salesContainer = document.getElementById('salesContainer');
-      if (salesContainer.innerHTML === '') {
-        loadSales();
-      }
+      const loadingDiv = document.getElementById('loadingSales');
+      
+      // Siempre cargar al hacer click
+      loadingDiv.style.display = 'block';
+      salesContainer.innerHTML = '';
+      loadSales();
     });
 
     // Inicializar
